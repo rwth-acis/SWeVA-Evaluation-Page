@@ -1,0 +1,440 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Movie Rating Page</title>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <style>
+        body {
+            font-family: "Verdana",sans-serif;
+            margin: 0;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+        }
+
+        dt {
+            font-weight: 600;
+        }
+
+        dd {
+            margin-top: 10px;
+        }
+
+        button {
+            outline: none;
+            border: none;
+            background: #0068D6;
+            color: #fff;
+            text-transform: uppercase;
+            padding: 15px;
+            font-weight: 600;
+            box-shadow: 0 1px 5px #777;
+        }
+
+            button::-moz-focus-inner {
+                border: 0;
+            }
+
+            button:hover {
+                background: #559ae4;
+            }
+
+            button:active {
+                box-shadow: 0 1px 2px #444;
+            }
+
+        #main {
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #name-area {
+            padding: 15px;
+            background: #0068D6;
+            box-shadow: 0 1px 5px #777;
+            color: #fff;
+            display: flex;
+            margin-left: 15px;
+            margin-right: 15px;
+        }
+
+            #name-area label {
+                margin-right: 15px;
+            }
+
+            #name-area input {
+                flex: 1;
+                width: 100%;
+            }
+
+        #item-area, #rating-area {
+            margin: 15px;
+            padding: 15px;
+            box-shadow: 0 1px 5px #777;
+        }
+
+        #item-indicator {
+            position: absolute;
+        }
+
+        #info {
+            display: flex;
+        }
+
+        #poster-outer {
+            padding: 25px;
+        }
+
+        #poster {
+            max-height: 250px;
+            max-width: 250px;
+        }
+
+        #navigation {
+            display: flex;
+        }
+
+            #navigation button {
+                flex: 1;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+
+        #vote-area > div {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        #scale-rating, #binary-rating, #random-rating {
+            display: flex;
+            align-items: center;
+        }
+
+        #scale-vote {
+            flex: 1;
+        }
+
+        #scale-rating-value, #binary-rating-value, #random-rating-value {
+            margin-left: 15px;
+            margin-right: 5px;
+            width: 100px;
+            text-align: right;
+        }
+
+        #binary-rating button {
+            flex: 1;
+            margin-left: 5px;
+            margin-right: 5px;
+            background: #fff;
+        }
+
+        #good-button {
+            color: #005f00;
+        }
+
+        #bad-button {
+            color: #5f0000;
+        }
+
+        #binary-rating #good-button:active {
+            background: #005f00;
+            color: #fff;
+        }
+
+        #binary-rating #bad-button:active {
+            background: #5f0000;
+            color: #fff;
+        }
+
+        #random-rating button {
+            flex: 1;
+        }
+
+        #rate-button {
+            width: 100%;
+            margin-top: 25px;
+            background: #FF3D00;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.9.1/axios.js"></script>
+    <div id="main">
+        <div id="name-area">
+            <label>Your Name:</label><input id="username" type="text" value="" placeholder="Your Name" />
+        </div>
+
+        <div id="item-area">
+            <div id="item-indicator">
+                1/10
+            </div>
+            <h1 id="title">Batman</h1>
+
+            <div id="info">
+                <div id="poster-outer">
+                <a id="poster-link" href="">
+                    <img id="poster" />
+                </a>
+                </div>
+                <dl style="flex: 1;">
+                    <dt>
+                        Year
+                    </dt>
+                    <dd id="year">
+                        1989
+                    </dd>
+
+                    <dt>
+                        Plot
+                    </dt>
+                    <dd id="plot">
+                        The Dark Knight of Gotham City begins his war on crime with his first major enemy being the clownishly homicidal Joker.
+                    </dd>
+                </dl>
+            </div>
+            <div id="navigation">
+                <button onclick="previousItem()">Previous</button>
+                <button onclick="nextItem()">Next</button>
+            </div>
+        </div>
+
+        <div id="rating-area">
+            <h2>Rating</h2>
+            <div id="rating-method">
+                <dl>
+                    <dt>
+                        Rating Method
+                    </dt>
+                    <dd>
+                        <select id="select-method" onchange="ratingMethodChanged()">
+                            <option value="scale">Scale 0 - 10</option>
+                            <option value="binary">Good/Bad</option>
+                            <option value="random">Random</option>
+                            <option value="text">Text</option>
+                        </select>
+                    </dd>
+                </dl>
+            </div>
+
+            <div id="vote-area">
+                <h3>Vote</h3>
+                <div id="scale-rating">
+                    <input id="scale-vote" type="range" min="0" max="10" step="1" value="5" oninput="scaleChanged()" />
+                    <div id="scale-rating-value">5</div>
+                </div>
+                <div id="binary-rating">                    
+                    <button id="bad-button" onclick="badClicked()">👎 Bad</button>
+                    <button id="good-button" onclick="goodClicked()">👍 Good</button>
+                    <div id="binary-rating-value"></div>
+                </div>
+                <div id="random-rating">
+                    <button onclick="randomClicked()"><span style="font-weight: 500; font-size: 20px">🎲</span> Throw Dice</button>
+                    <div id="random-rating-value">10</div>
+                </div>
+                <div id="text-rating">
+                    <textarea id="text-rating-value" placeholder="I like/dislike <movie x>, because ..."></textarea>
+                </div>
+            </div>
+            <button id="rate-button" onclick="rate()">Rate</button>
+        </div>
+    </div>
+
+    <script>
+        var selectedMethod = 'scale';
+        var rating = 0.0;
+        var currentIndex = 0;
+        var items = [];
+
+        function randomClicked() {
+            var el = document.getElementById('random-rating-value');
+            var random = getRandomInt(0, 10);
+
+            el.innerText = random;
+            if (random > 0) {
+                rating = random / 10;
+            }
+            else {
+                rating = 0;
+            }
+        }
+        function scaleChanged() {
+            var el = document.getElementById('scale-vote');
+            var el2 = document.getElementById('scale-rating-value');
+            el2.innerText = el.value;
+
+            if (+el.value > 0) {
+                rating = parseFloat(el.value) / 10;
+            }
+            else {
+                rating = 0;
+            }
+        }
+        function goodClicked() {
+            var el = document.getElementById('binary-rating-value');
+            el.innerText = '👍 Good';
+            rating = 1;
+        }
+        function badClicked() {
+            var el = document.getElementById('binary-rating-value');
+            el.innerText = '👎 Bad';
+            rating = 0;
+        }
+        function ratingMethodChanged() {
+            var element = document.getElementById('select-method');
+            var value = element.value;
+            selectedMethod = value;
+
+            var el = document.getElementById('scale-rating');
+            el.className = 'hidden';
+            el = document.getElementById('binary-rating');
+            el.className = 'hidden';
+            el = document.getElementById('random-rating');
+            el.className = 'hidden';
+            el = document.getElementById('text-rating');
+            el.className = 'hidden';
+
+            switch (value) {
+                case 'scale':
+                    el = document.getElementById('scale-rating');
+                    el.className = '';
+                    break;
+                case 'binary':
+                    el = document.getElementById('binary-rating');
+                    el.className = '';
+                    break;
+                case 'random':
+                    el = document.getElementById('random-rating');
+                    el.className = '';
+                    break;
+                case 'text':
+                    el = document.getElementById('text-rating');
+                    el.className = '';
+                    break;
+                default:
+            }
+
+        }
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min)) + min;
+        }
+        function randomMethodSelect() {
+            var element = document.getElementById('select-method');
+            var values = ['scale', 'binary', 'random', 'text'];
+            var rand = getRandomInt(0, values.length);
+
+            //element.value = values[rand];
+            //ratingMethodChanged();
+        }
+        function loadItem(index) {
+            if (index < items.length) {
+
+                var id = items[index].id;
+                axios.get('http://www.omdbapi.com/?i=' + id + '&plot=short&r=json').then(function (response) {
+                    var movie = response.data;
+                    var title = document.getElementById('title');
+                    title.innerText = movie.Title;
+
+                    var year = document.getElementById('year');
+                    year.innerText = movie.Year;
+
+                    var plot = document.getElementById('plot');
+                    plot.innerText = movie.Plot;
+
+                    var posterLink = document.getElementById('poster-link');
+                    var poster = document.getElementById('poster');
+                    poster.src = movie.Poster;
+                    posterLink.href = movie.Poster;
+                });
+
+                var indicator = document.getElementById('item-indicator');
+                indicator.innerText = (index + 1) + '/' + items.length;
+                reset();
+            }
+        };
+
+        function nextItem() {
+            if (currentIndex < items.length - 1) {
+                currentIndex++;
+                loadItem(currentIndex);
+            }
+        }
+
+        function previousItem() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadItem(currentIndex);
+            }
+        }
+
+        function getItems() {
+            axios.get('http://137.226.232.217:8023/swevaeval/items').then(function (response) {
+                items = response.data.items;
+                loadItem(0);
+                console.log(items);
+            });
+        }
+        function rate() {
+            var el = document.getElementById('username');
+            var textarea = document.getElementById('text-rating-value');
+            var name = el.value;
+            if (name.trim().length == 0) {
+                alert('Plase provide a name (topmost field)!');
+                return;
+            }
+            var ratingObject = {
+                name: name,
+                type: selectedMethod,
+                rating: rating + '',
+                review: textarea.value
+            };
+
+            axios.post('http://137.226.232.217:8023/swevaeval/items/' + items[currentIndex].id,
+                ratingObject
+                ).then(function (response) {
+
+                });
+            nextItem();
+            console.log(ratingObject);
+        }
+        function reset() {
+
+            var el = document.getElementById('text-rating-value');
+            el.value = '';
+
+            var el = document.getElementById('scale-vote');
+            el.value = 5;
+
+            var el = document.getElementById('binary-rating-value');
+            el.innerText = '';
+            var el = document.getElementById('scale-rating-value');
+            el.innerText = '';
+            var el = document.getElementById('random-rating-value');
+            el.innerText = '';
+
+            rating = 0.0;
+            //randomMethodSelect();
+            
+        }
+        reset();
+
+        getItems();
+        
+        var element = document.getElementById('select-method');
+            element.value = 'scale';
+            ratingMethodChanged();
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "sweva-evaluation-page",
+  "version": "1.0.6",
+  "authors": [
+    "Anonymous <anonymous@example.com>"
+  ],
+  "description": "",
+  "keywords": [
+  ],
+  "main": "index.html",
+  "license": "",
+  "homepage": "",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+   
+  },
+  "devDependencies": {
+    
+  }
+}
